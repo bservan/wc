@@ -5,7 +5,7 @@
 
 int main(int argc, char **argv)
 {
-	CmdLine cmdline(--argc, ++argv);
-	cmdline.process();
-	return 0;
+    CmdLine cmdline(--argc, ++argv);
+    cmdline.process();
+    return 0;
 }

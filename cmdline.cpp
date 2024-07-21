@@ -12,19 +12,19 @@
 
 enum Options
 {
-	WC_BYTES,
-	WC_CHARS,
-	WC_WORDS,
-	WC_LINES,
-	WC_HELP,
-	WC_VERSION,
-	WC_OPTION_COUNT,
+    WC_BYTES,
+    WC_CHARS,
+    WC_WORDS,
+    WC_LINES,
+    WC_HELP,
+    WC_VERSION,
+    WC_OPTION_COUNT,
 };
 
 struct OptionString
 {
-	std::string shortOption;
-	std::string longOption;
+    std::string shortOption;
+    std::string longOption;
 
     OptionString(const std::string &shortOption, const std::string &longOption)
         : shortOption{shortOption}, longOption{longOption}
@@ -52,8 +52,8 @@ static constexpr const char *wcHelpOptionHelpMsg  = "  -h, --help     prints thi
 class CmdLine::Impl
 {
 private:
-	std::vector<std::string> m_inputFiles;
-	int m_argumentCount;
+    std::vector<std::string> m_inputFiles;
+    int m_argumentCount;
     std::array<bool, WC_OPTION_COUNT> m_options;
     struct FileStat
     {
@@ -64,53 +64,53 @@ private:
     } m_totalStat;
 
     void printHelp() const
-	{
+    {
         std::cout << wcUsage << '\n'
                   << wcBytesOptionHelpMsg << '\n'
                   << wcCharsOptionHelpMsg << '\n'
                   << wcWordsOptionHelpMsg << '\n'
                   << wcLinesOptionHelpMsg << '\n'
                   << wcHelpOptionHelpMsg  << '\n';
-	}
+    }
 
     void printVersion() const
-	{
+    {
         std::cout << "wc - version " << wcVersion << '\n';
-	}
+    }
 
-	void extractOptions(char** commandOptions)
-	{
-		for (int i = 0; i < m_argumentCount; ++i)
-		{
+    void extractOptions(char** commandOptions)
+    {
+        for (int i = 0; i < m_argumentCount; ++i)
+        {
             std::string optionStr{commandOptions[i]};
-			if (optionStr.starts_with("-"))
-			{
-				extractSingleOption(optionStr);
-			}
-			else
-			{
-				m_inputFiles.push_back(optionStr);
-			}
-		}
-	}
+            if (optionStr.starts_with("-"))
+            {
+                extractSingleOption(optionStr);
+            }
+            else
+            {
+                m_inputFiles.push_back(optionStr);
+            }
+        }
+    }
 
-	void extractSingleOption(const std::string& cmdLineArgument)
-	{
-		for (int i = 0; i < WC_OPTION_COUNT; ++i)
-		{
-			if (cmdLineArgument == wcOptions[i].shortOption || cmdLineArgument == wcOptions[i].longOption)
-			{
-				m_options[i] = true;
-			}
+    void extractSingleOption(const std::string& cmdLineArgument)
+    {
+        for (int i = 0; i < WC_OPTION_COUNT; ++i)
+        {
+            if (cmdLineArgument == wcOptions[i].shortOption || cmdLineArgument == wcOptions[i].longOption)
+            {
+                m_options[i] = true;
+            }
             else if (cmdLineArgument.starts_with("-") && !cmdLineArgument.starts_with("--"))
-			{
+            {
                 if (cmdLineArgument.find(wcOptions[i].shortOption[1]) != std::string::npos)
                 {
                     m_options[i] = true;
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 
     std::tuple<size_t, size_t> getWordAndCharCounts(const std::string &line)
     {
@@ -211,40 +211,40 @@ private:
     }
 
 public:
-	Impl(int argumentCount, char **commandOptions)
-		: m_argumentCount{argumentCount}
-	{
+    Impl(int argumentCount, char **commandOptions)
+        : m_argumentCount{argumentCount}
+    {
         m_options.fill(false);
-		extractOptions(commandOptions);
-	}
+        extractOptions(commandOptions);
+    }
 
-	void process()
-	{
-		if (m_options[WC_HELP])
-		{
+    void process()
+    {
+        if (m_options[WC_HELP])
+        {
             printHelp();
-			return;
-		}
-		if (m_options[WC_VERSION])
-		{
+            return;
+        }
+        if (m_options[WC_VERSION])
+        {
             printVersion();
-			return;
-		}
+            return;
+        }
         processInputs();
-	}
+    }
 };
 
 CmdLine::CmdLine(int argumentCount, char **commandOptions)
 {
-	m_impl = new Impl(argumentCount, commandOptions);
+    m_impl = new Impl(argumentCount, commandOptions);
 }
 
 CmdLine::~CmdLine()
 {
-	delete m_impl;
+    delete m_impl;
 }
 
 void CmdLine::process()
 {
-	m_impl->process();
+    m_impl->process();
 }

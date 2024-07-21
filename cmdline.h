@@ -4,14 +4,14 @@
 class CmdLine
 {
 private:
-	class Impl;
-	Impl *m_impl;
+    class Impl;
+    Impl *m_impl;
 
 public:
-	CmdLine(int argumentCount, char **commandOptions);
-	~CmdLine();
+    CmdLine(int argumentCount, char **commandOptions);
+    ~CmdLine();
 
-	void process();
+    void process();
 };
 
 #endif // WC_CMDLINE_H
