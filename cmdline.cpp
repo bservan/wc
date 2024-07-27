@@ -62,6 +62,7 @@ private:
         size_t words = 0;
         size_t lines = 0;
     } m_totalStat;
+    std::string m_invalidOption;
 
     void printHelp() const
     {
@@ -76,6 +77,12 @@ private:
     void printVersion() const
     {
         std::cout << "wc - version " << wcVersion << '\n';
+    }
+
+    void printInvalidOption() const
+    {
+        std::cout << "wc - invalid option provided : " << m_invalidOption << '\n'
+                  << "Try 'wc --help' to get usage.\n";
     }
 
     void extractOptions(char** commandOptions)
@@ -108,6 +115,14 @@ private:
                 {
                     m_options[i] = true;
                 }
+                else
+                {
+                    m_invalidOption = cmdLineArgument;
+                }
+            }
+            else
+            {
+                m_invalidOption = cmdLineArgument;
             }
         }
     }
@@ -206,7 +221,7 @@ private:
         }
         if (fileCount > 1)
         {
-            std::cout << formatOutput(m_totalStat) << " : total";
+            std::cout << formatOutput(m_totalStat) << " : total\n";
         }
     }
 
@@ -229,6 +244,11 @@ public:
         {
             printVersion();
             return;
+        }
+        if (!m_invalidOption.empty())
+        {
+            printInvalidOption();
+            std::exit(EXIT_FAILURE);
         }
         processInputs();
     }
