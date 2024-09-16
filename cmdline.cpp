@@ -41,12 +41,15 @@ static const std::array<OptionString, WC_OPTION_COUNT> wcOptions = {
     OptionString("-v", "--version")
 };
 
+static const std::string shortOptions = "cmwlhv";
+
 static constexpr const char *wcVersion            = "0.0.1";
 static constexpr const char *wcUsage              = "Usage: wc [OPTION]... [FILE]...";
 static constexpr const char *wcBytesOptionHelpMsg = "  -c, --bytes    prints the byte counts";
 static constexpr const char *wcCharsOptionHelpMsg = "  -m, --chars    prints the character counts";
 static constexpr const char *wcWordsOptionHelpMsg = "  -w, --words    prints the word counts";
 static constexpr const char *wcLinesOptionHelpMsg = "  -l, --lines    prints the newline counts";
+static constexpr const char *wcVrsnOptionHelpMsg  = "  -v, --version  prints the version information";
 static constexpr const char *wcHelpOptionHelpMsg  = "  -h, --help     prints this help and exits";
 
 class CmdLine::Impl
@@ -71,6 +74,7 @@ private:
                   << wcCharsOptionHelpMsg << '\n'
                   << wcWordsOptionHelpMsg << '\n'
                   << wcLinesOptionHelpMsg << '\n'
+                  << wcVrsnOptionHelpMsg  << '\n'
                   << wcHelpOptionHelpMsg  << '\n';
     }
 
@@ -103,31 +107,41 @@ private:
 
     void extractSingleOption(const std::string& cmdLineArgument)
     {
-        for (int i = 0; i < WC_OPTION_COUNT; ++i)
+        bool validOption = false;
+        size_t argLen = cmdLineArgument.length();
+        if (!cmdLineArgument.starts_with("--"))
         {
-            if (cmdLineArgument == wcOptions[i].shortOption || cmdLineArgument == wcOptions[i].longOption)
+            for (size_t i = 1; i < argLen; ++i)
             {
-                m_options[i] = true;
-            }
-            else if (cmdLineArgument.starts_with("-") && !cmdLineArgument.starts_with("--"))
-            {
-                if (cmdLineArgument.find(wcOptions[i].shortOption[1]) != std::string::npos)
+                size_t pos = shortOptions.find(cmdLineArgument[i]);
+                if (pos != std::string::npos)
                 {
-                    m_options[i] = true;
+                    m_options[pos] = true;
+                    validOption = true;
                 }
                 else
                 {
                     m_invalidOption = cmdLineArgument;
+                    break;
                 }
             }
-            else
+        }
+        if (!validOption && m_invalidOption.empty())
+        {
+            for (int i = 0; i < WC_OPTION_COUNT; ++i)
             {
+                if (cmdLineArgument == wcOptions[i].longOption)
+                {
+                    m_options[i] = true;
+                    m_invalidOption.clear();
+                    break;
+                }
                 m_invalidOption = cmdLineArgument;
             }
         }
     }
 
-    std::tuple<size_t, size_t> getWordAndCharCounts(const std::string &line)
+    std::tuple<size_t, size_t> getCharAndWordCounts(const std::string &line)
     {
         size_t charCount = 0, wordCount = 0;
         bool wordFlag = false;
@@ -181,9 +195,9 @@ private:
         while (std::getline(in, line))
         {
             ++fileStat.lines;
-            auto wordsAndChars = getWordAndCharCounts(line);
-            fileStat.chars += std::get<0>(wordsAndChars);
-            fileStat.words += std::get<1>(wordsAndChars);
+            auto charsAndWords = getCharAndWordCounts(line);
+            fileStat.chars += std::get<0>(charsAndWords);
+            fileStat.words += std::get<1>(charsAndWords);
         }
         m_totalStat.chars += fileStat.chars;
         m_totalStat.words += fileStat.words;
